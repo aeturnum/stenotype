@@ -21,59 +21,67 @@ defmodule Stenotype do
   end
 
   defmacro info(line) do
-    loc = Location.register_log_location(__CALLER__, :info)
+    atom = :info
+    loc = Stenotype.Location.register_log_location(__CALLER__, atom)
 
     quote do
       unquote(Macro.escape(loc))
-      |> Stenotype.Format.log_line(unquote(line))
-      |> Stenotype.Output.output(:info)
+      |> Stenotype.Format.Statement.create(unquote(line), unquote(atom))
+      |> Stenotype.Output.output()
     end
   end
 
   defmacro debug(line) do
-    loc = Stenotype.Location.register_log_location(__CALLER__, :debug)
-    IO.inspect(Macro.to_string(line))
+    atom = :debug
+    loc = Stenotype.Location.register_log_location(__CALLER__, atom)
 
     quote do
       unquote(Macro.escape(loc))
-      |> Stenotype.Format.log_line(unquote(line))
-      |> Stenotype.Output.output(:debug)
+      |> Stenotype.Format.Statement.create(unquote(line), unquote(atom))
+      |> Stenotype.Output.output()
+
+      # unquote(Macro.escape(loc))
+      # |> Stenotype.Format.log_line(unquote(line))
+      # |> Stenotype.Output.output(:debug)
     end
   end
 
   defmacro notice(line) do
-    loc = Location.register_log_location(__CALLER__, :notice)
+    atom = :notice
+    loc = Stenotype.Location.register_log_location(__CALLER__, atom)
 
     quote do
       unquote(Macro.escape(loc))
-      |> Stenotype.Format.log_line(unquote(line))
-      |> Stenotype.Output.output(:notice)
+      |> Stenotype.Format.Statement.create(unquote(line), unquote(atom))
+      |> Stenotype.Output.output()
     end
   end
 
   defmacro warn(line) do
-    loc = Location.register_log_location(__CALLER__, :warn)
+    atom = :warn
+    loc = Stenotype.Location.register_log_location(__CALLER__, atom)
 
     quote do
       unquote(Macro.escape(loc))
-      |> Stenotype.Format.log_line(unquote(line))
-      |> Stenotype.Output.output(:warn)
+      |> Stenotype.Format.Statement.create(unquote(line), unquote(atom))
+      |> Stenotype.Output.output()
     end
   end
 
   defmacro error(line) do
-    loc = Location.register_log_location(__CALLER__, :error)
+    atom = :error
+    loc = Stenotype.Location.register_log_location(__CALLER__, atom)
 
     quote do
       unquote(Macro.escape(loc))
-      |> Stenotype.Format.log_line(unquote(line))
-      |> Stenotype.Output.output(:error)
+      |> Stenotype.Format.Statement.create(unquote(line), unquote(atom))
+      |> Stenotype.Output.output()
     end
   end
 
   defmacro to_s(term) do
     quote do
-      Stenotype.Format.to_bin(unquote(term))
+      Stenotype.Format.Conversion.to_bin(unquote(term))
     end
   end
 

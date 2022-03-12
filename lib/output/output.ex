@@ -1,5 +1,5 @@
 defmodule Stenotype.Output do
-  def output(line, level_atom) do
-    Stenotype.Output.Logger.output(line, level_atom)
+  def output(statement = %{level: level}) do
+    Stenotype.Output.Logger.output(statement, level)
   end
 end

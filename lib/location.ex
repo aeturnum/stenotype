@@ -3,6 +3,14 @@ defmodule Stenotype.Location do
 
   defstruct file: "", line: 0, module: :none, function_atom: :none, arity: 0
 
+  @type t :: %__MODULE__{
+          file: binary(),
+          line: integer(),
+          module: atom(),
+          function_atom: atom(),
+          arity: integer()
+        }
+
   def create(%{file: f, line: l, module: m, function: {atom, arity}}) do
     %__MODULE__{
       file: f,
