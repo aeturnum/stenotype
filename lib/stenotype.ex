@@ -73,7 +73,7 @@ defmodule Stenotype do
 
   defmacro to_s(term) do
     quote do
-      Common.Log.DebugLog.to_bin(unquote(term))
+      Stenotype.Format.to_bin(unquote(term))
     end
   end
 

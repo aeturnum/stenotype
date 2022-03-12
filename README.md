@@ -4,18 +4,13 @@ Contextual logging. Pre-pre-pre alpha, use at your own risk.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `stenotype` to your list of dependencies in `mix.exs`:
+For now just available over git. No docs yet either.
 
 ```elixir
 def deps do
   [
-    {:stenotype, "~> 0.0.1"}
+    {:stenotype, git: "https://github.com/aeturnum/stenotype.git"}
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/stenotype](https://hexdocs.pm/stenotype).
 
