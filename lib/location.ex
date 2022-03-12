@@ -75,14 +75,34 @@ defmodule Stenotype.Location do
       :ets.new(:log_locations, [:set, :protected, :named_table])
     end
 
-    case :ets.lookup(:log_locations, :db) do
-      [] ->
-        {:ok, db} = CubDB.start_link("priv/cubdb/logs")
-        :ets.insert(:log_locations, {:db, db})
+    case db_ets_lookup() do
+      {:ok, db} ->
         db
 
+      _ ->
+        Process.sleep(1)
+
+        case db_ets_lookup() do
+          {:ok, db} -> db
+          _ -> raise "deadlock in db"
+        end
+    end
+  end
+
+  defp db_ets_lookup() do
+    case :ets.lookup(:log_locations, :db) do
+      [] ->
+        case CubDB.start_link("priv/cubdb/logs") do
+          {:ok, db} ->
+            :ets.insert(:log_locations, {:db, db})
+            {:ok, db}
+
+          {:error, _} ->
+            :error
+        end
+
       [{_, info}] ->
-        info
+        {:ok, info}
     end
   end
 
