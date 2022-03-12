@@ -48,32 +48,46 @@ defmodule Stenotype.Format.Statement do
   end
 
   defp format_lines(content, lvl_pfx, loc_str, ts_str) when is_binary(content) do
-    "#{lvl_pfx}#{loc_str}<#{ts_str}> #{content}\n"
+    "#{lvl_pfx}#{ts_str}#{loc_str} #{content}\n"
   end
 
   defp format_lines(content, lvl_pfx, loc_str, ts_str) when is_list(content) do
     # want to keep width consistent
-    first_prefix = "#{lvl_pfx}#{loc_str}\\<#{ts_str}> "
+    first_prefix = "#{lvl_pfx}#{ts_str}"
+    second_prefix = "#{lvl_pfx}#{loc_str}"
+    first_prefix_width = String.length(first_prefix)
+    second_prefix_width = String.length(second_prefix)
+
+    first_prefix =
+      if second_prefix_width > first_prefix_width do
+        first_prefix
+        |> String.pad_trailing(first_prefix_width + 1, "|")
+        |> String.pad_trailing(second_prefix_width - 1, "-")
+      else
+        first_prefix
+      end
 
     rest_lines =
       content
       |> Enum.with_index()
-      |> Enum.map(fn {line, idx} -> rest_lines(idx, line, lvl_pfx, loc_str) end)
+      |> Enum.map(fn {line, idx} ->
+        rest_lines(idx, line, lvl_pfx, first_prefix_width, loc_str)
+      end)
 
-    Enum.join(["#{first_prefix}" | rest_lines], "\n") <> "\n"
+    Enum.join(["#{first_prefix}\\" | rest_lines], "\n") <> "\n"
   end
 
   defp format_lines(content, lvl_pfx, loc_str, ts_str) do
-    "#{lvl_pfx}#{loc_str}<#{ts_str}> #{Conversion.to_bin(content)}\n"
+    "#{lvl_pfx}#{ts_str}#{loc_str} #{Conversion.to_bin(content)}\n"
   end
 
-  defp rest_lines(_idx, line, lvl_pfx, loc_str) do
-    prefix = "#{lvl_pfx}#{loc_str}"
+  defp rest_lines(_idx, line, lvl_pfx, first_prefix_width, loc_str) do
+    prefix = String.pad_trailing("#{lvl_pfx}#{loc_str}", first_prefix_width)
 
     line_str =
       cond do
-        is_binary(line) -> " |#{line}"
-        true -> " |#{Conversion.to_bin(line)}"
+        is_binary(line) -> "|#{line}"
+        true -> "|#{Conversion.to_bin(line)}"
       end
 
     "#{prefix}#{line_str}"

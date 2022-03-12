@@ -72,37 +72,33 @@ defmodule Stenotype.Location do
 
   defp get_db_handle() do
     if :ets.whereis(:log_locations) == :undefined do
+      # need to lock here to prevent deadlock
+      :global.set_lock({__MODULE__, self()})
       :ets.new(:log_locations, [:set, :protected, :named_table])
+      {:ok, db} = CubDB.start_link("priv/cubdb/logs")
+      :ets.insert(:log_locations, {:db, db})
+      :global.del_lock({__MODULE__, self()})
     end
 
-    case db_ets_lookup() do
+    case get_from_ets() do
       {:ok, db} ->
         db
 
-      _ ->
-        Process.sleep(1)
-
-        case db_ets_lookup() do
-          {:ok, db} -> db
-          _ -> raise "deadlock in db"
-        end
+      :error ->
+        :global.set_lock({__MODULE__, self()})
+        {:ok, db} = get_from_ets()
+        :global.del_lock({__MODULE__, self()})
+        db
     end
   end
 
-  defp db_ets_lookup() do
+  defp get_from_ets() do
     case :ets.lookup(:log_locations, :db) do
+      [{_, db}] ->
+        {:ok, db}
+
       [] ->
-        case CubDB.start_link("priv/cubdb/logs") do
-          {:ok, db} ->
-            :ets.insert(:log_locations, {:db, db})
-            {:ok, db}
-
-          {:error, _} ->
-            :error
-        end
-
-      [{_, info}] ->
-        {:ok, info}
+        :error
     end
   end
 
